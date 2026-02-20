@@ -1,0 +1,176 @@
+import '../../domain/entities/city.dart';
+
+class EthiopianCitiesData {
+  static const List<City> cities = [
+    // Addis Ababa
+    City(id: 'aa-01', cityName: 'Addis Ababa', region: 'Addis Ababa', latitude: 9.03, longitude: 38.74),
+    City(id: 'aa-02', cityName: 'Akaki', region: 'Addis Ababa', latitude: 8.88, longitude: 38.79),
+    City(id: 'aa-03', cityName: 'Kaliti', region: 'Addis Ababa', latitude: 8.92, longitude: 38.77),
+    City(id: 'aa-04', cityName: 'Lebu', region: 'Addis Ababa', latitude: 8.94, longitude: 38.71),
+    City(id: 'aa-05', cityName: 'Nifas Silk', region: 'Addis Ababa', latitude: 8.97, longitude: 38.74),
+    
+    // Oromia
+    City(id: 'or-01', cityName: 'Adama', region: 'Oromia', latitude: 8.54, longitude: 39.27),
+    City(id: 'or-02', cityName: 'Bishoftu', region: 'Oromia', latitude: 8.75, longitude: 38.98),
+    City(id: 'or-03', cityName: 'Jimma', region: 'Oromia', latitude: 7.67, longitude: 36.83),
+    City(id: 'or-04', cityName: 'Shashamane', region: 'Oromia', latitude: 7.20, longitude: 38.60),
+    City(id: 'or-05', cityName: 'Nekemte', region: 'Oromia', latitude: 9.08, longitude: 36.55),
+    City(id: 'or-06', cityName: 'Asella', region: 'Oromia', latitude: 7.95, longitude: 39.12),
+    City(id: 'or-07', cityName: 'Ambo', region: 'Oromia', latitude: 8.98, longitude: 37.85),
+    City(id: 'or-08', cityName: 'Sebeta', region: 'Oromia', latitude: 8.91, longitude: 38.62),
+    City(id: 'or-09', cityName: 'Burayu', region: 'Oromia', latitude: 9.05, longitude: 38.65),
+    City(id: 'or-10', cityName: 'Ziway', region: 'Oromia', latitude: 7.93, longitude: 38.72),
+    City(id: 'or-11', cityName: 'Bale Robe', region: 'Oromia', latitude: 7.13, longitude: 40.00),
+    City(id: 'or-12', cityName: 'Goba', region: 'Oromia', latitude: 7.01, longitude: 39.97),
+    City(id: 'or-13', cityName: 'Holeta', region: 'Oromia', latitude: 9.07, longitude: 38.51),
+    City(id: 'or-14', cityName: 'Mojo', region: 'Oromia', latitude: 8.58, longitude: 39.12),
+    City(id: 'or-15', cityName: 'Metu', region: 'Oromia', latitude: 8.30, longitude: 35.58),
+    City(id: 'or-16', cityName: 'Agaro', region: 'Oromia', latitude: 7.85, longitude: 36.58),
+    City(id: 'or-17', cityName: 'Gimbi', region: 'Oromia', latitude: 9.17, longitude: 35.83),
+    City(id: 'or-18', cityName: 'Dembi Dolo', region: 'Oromia', latitude: 8.53, longitude: 34.80),
+    City(id: 'or-19', cityName: 'Negele Borana', region: 'Oromia', latitude: 5.33, longitude: 39.58),
+    City(id: 'or-20', cityName: 'Yabelo', region: 'Oromia', latitude: 4.88, longitude: 38.08),
+    City(id: 'or-21', cityName: 'Fiche', region: 'Oromia', latitude: 9.81, longitude: 38.73),
+    City(id: 'or-22', cityName: 'Sendafa', region: 'Oromia', latitude: 9.15, longitude: 39.02),
+    City(id: 'or-23', cityName: 'Bedele', region: 'Oromia', latitude: 8.45, longitude: 36.35),
+    City(id: 'or-24', cityName: 'Bule Hora', region: 'Oromia', latitude: 5.63, longitude: 38.23),
+    City(id: 'or-25', cityName: 'Dukem', region: 'Oromia', latitude: 8.79, longitude: 38.91),
+    City(id: 'or-26', cityName: 'Gelan', region: 'Oromia', latitude: 8.84, longitude: 38.86),
+    City(id: 'or-27', cityName: 'Shambu', region: 'Oromia', latitude: 9.57, longitude: 37.10),
+    City(id: 'or-28', cityName: 'Gedo', region: 'Oromia', latitude: 9.02, longitude: 37.45),
+    City(id: 'or-29', cityName: 'Mendi', region: 'Oromia', latitude: 9.80, longitude: 35.10),
+    City(id: 'or-30', cityName: 'Ginir', region: 'Oromia', latitude: 7.13, longitude: 40.70),
+    City(id: 'or-31', cityName: 'Shashemene', region: 'Oromia', latitude: 7.20, longitude: 38.60),
+    City(id: 'or-32', cityName: 'Batu', region: 'Oromia', latitude: 7.93, longitude: 38.72),
+    City(id: 'or-33', cityName: 'Shakiso', region: 'Oromia', latitude: 5.75, longitude: 38.92),
+    City(id: 'or-34', cityName: 'Kofele', region: 'Oromia', latitude: 7.07, longitude: 38.78),
+    City(id: 'or-35', cityName: 'Dodola', region: 'Oromia', latitude: 6.98, longitude: 39.18),
+    City(id: 'or-36', cityName: 'Adola', region: 'Oromia', latitude: 5.90, longitude: 38.98),
+    City(id: 'or-37', cityName: 'Bedessa', region: 'Oromia', latitude: 8.90, longitude: 40.78),
+    City(id: 'or-38', cityName: 'Gelemso', region: 'Oromia', latitude: 8.82, longitude: 40.52),
+    City(id: 'or-39', cityName: 'Hirut', region: 'Oromia', latitude: 9.20, longitude: 39.23),
+    City(id: 'or-40', cityName: 'Ejere', region: 'Oromia', latitude: 9.03, longitude: 38.40),
+    City(id: 'or-41', cityName: 'Bekoji', region: 'Oromia', latitude: 7.55, longitude: 39.25),
+    
+    // Amhara
+    City(id: 'am-01', cityName: 'Bahir Dar', region: 'Amhara', latitude: 11.59, longitude: 37.39),
+    City(id: 'am-02', cityName: 'Gondar', region: 'Amhara', latitude: 12.60, longitude: 37.47),
+    City(id: 'am-03', cityName: 'Dessie', region: 'Amhara', latitude: 11.13, longitude: 39.63),
+    City(id: 'am-04', cityName: 'Debre Birhan', region: 'Amhara', latitude: 9.68, longitude: 39.53),
+    City(id: 'am-05', cityName: 'Debre Markos', region: 'Amhara', latitude: 10.33, longitude: 37.73),
+    City(id: 'am-06', cityName: 'Kombolcha', region: 'Amhara', latitude: 11.08, longitude: 39.73),
+    City(id: 'am-07', cityName: 'Debre Tabor', region: 'Amhara', latitude: 11.85, longitude: 38.02),
+    City(id: 'am-08', cityName: 'Weldiya', region: 'Amhara', latitude: 11.83, longitude: 39.59),
+    City(id: 'am-09', cityName: 'Lalibela', region: 'Amhara', latitude: 12.03, longitude: 39.04),
+    City(id: 'am-10', cityName: 'Finote Selam', region: 'Amhara', latitude: 10.70, longitude: 37.27),
+    City(id: 'am-11', cityName: 'Enjibara', region: 'Amhara', latitude: 10.95, longitude: 36.92),
+    City(id: 'am-12', cityName: 'Dangila', region: 'Amhara', latitude: 11.27, longitude: 36.83),
+    City(id: 'am-13', cityName: 'Chagni', region: 'Amhara', latitude: 10.95, longitude: 36.50),
+    City(id: 'am-14', cityName: 'Bure', region: 'Amhara', latitude: 10.70, longitude: 37.07),
+    City(id: 'am-15', cityName: 'Mota', region: 'Amhara', latitude: 11.08, longitude: 37.88),
+    City(id: 'am-16', cityName: 'Kobo', region: 'Amhara', latitude: 12.15, longitude: 39.63),
+    City(id: 'am-17', cityName: 'Haillu', region: 'Amhara', latitude: 10.01, longitude: 37.00),
+    City(id: 'am-18', cityName: 'Kemissie', region: 'Amhara', latitude: 10.72, longitude: 39.81),
+    City(id: 'am-19', cityName: 'Shoa Robit', region: 'Amhara', latitude: 10.01, longitude: 39.90),
+    City(id: 'am-20', cityName: 'Wereta', region: 'Amhara', latitude: 11.92, longitude: 37.70),
+    City(id: 'am-21', cityName: 'Woldiya', region: 'Amhara', latitude: 11.83, longitude: 39.59),
+    City(id: 'am-22', cityName: 'Gajena', region: 'Amhara', latitude: 11.50, longitude: 38.30),
+    City(id: 'am-23', cityName: 'Sekota', region: 'Amhara', latitude: 12.63, longitude: 39.03),
+    City(id: 'am-24', cityName: 'Addis Zemen', region: 'Amhara', latitude: 12.12, longitude: 37.78),
+    City(id: 'am-25', cityName: 'Shewa Robit', region: 'Amhara', latitude: 10.01, longitude: 39.90),
+    
+    // Tigray
+    City(id: 'ti-01', cityName: 'Mekele', region: 'Tigray', latitude: 13.49, longitude: 39.47),
+    City(id: 'ti-02', cityName: 'Adigrat', region: 'Tigray', latitude: 14.27, longitude: 39.46),
+    City(id: 'ti-03', cityName: 'Aksum', region: 'Tigray', latitude: 14.13, longitude: 38.72),
+    City(id: 'ti-04', cityName: 'Shire', region: 'Tigray', latitude: 14.10, longitude: 38.28),
+    City(id: 'ti-05', cityName: 'Adwa', region: 'Tigray', latitude: 14.17, longitude: 38.89),
+    City(id: 'ti-06', cityName: 'Humera', region: 'Tigray', latitude: 14.28, longitude: 36.62),
+    City(id: 'ti-07', cityName: 'Alamata', region: 'Tigray', latitude: 12.42, longitude: 39.55),
+    City(id: 'ti-08', cityName: 'Wukro', region: 'Tigray', latitude: 13.78, longitude: 39.60),
+    City(id: 'ti-09', cityName: 'Maychew', region: 'Tigray', latitude: 12.78, longitude: 39.53),
+    City(id: 'ti-10', cityName: 'Sheraro', region: 'Tigray', latitude: 14.40, longitude: 37.77),
+    City(id: 'ti-11', cityName: 'Abiy Addi', region: 'Tigray', latitude: 13.62, longitude: 39.00),
+    City(id: 'ti-12', cityName: 'Korem', region: 'Tigray', latitude: 12.50, longitude: 39.52),
+    
+    // Sidama
+    City(id: 'si-01', cityName: 'Hawassa', region: 'Sidama', latitude: 7.05, longitude: 38.47),
+    City(id: 'si-02', cityName: 'Yirgalem', region: 'Sidama', latitude: 6.75, longitude: 38.42),
+    City(id: 'si-03', cityName: 'Aleta Wendo', region: 'Sidama', latitude: 6.60, longitude: 38.42),
+    City(id: 'si-04', cityName: 'Leku', region: 'Sidama', latitude: 6.87, longitude: 38.45),
+    City(id: 'si-05', cityName: 'Bona', region: 'Sidama', latitude: 6.55, longitude: 38.65),
+    
+    // South Ethiopia
+    City(id: 'sn-01', cityName: 'Arba Minch', region: 'South Ethiopia', latitude: 6.02, longitude: 37.55),
+    City(id: 'sn-02', cityName: 'Wolaita Sodo', region: 'South Ethiopia', latitude: 6.86, longitude: 37.76),
+    City(id: 'sn-03', cityName: 'Dilla', region: 'South Ethiopia', latitude: 6.41, longitude: 38.31),
+    City(id: 'sn-04', cityName: 'Jinka', region: 'South Ethiopia', latitude: 5.78, longitude: 36.65),
+    City(id: 'sn-05', cityName: 'Sawla', region: 'South Ethiopia', latitude: 6.31, longitude: 36.89),
+    City(id: 'sn-06', cityName: 'Karati', region: 'South Ethiopia', latitude: 5.50, longitude: 37.47),
+    City(id: 'sn-07', cityName: 'Konso', region: 'South Ethiopia', latitude: 5.33, longitude: 37.43),
+    City(id: 'sn-08', cityName: 'Gidole', region: 'South Ethiopia', latitude: 5.65, longitude: 37.37),
+    
+    // Central Ethiopia
+    City(id: 'ce-01', cityName: 'Hosaena', region: 'Central Ethiopia', latitude: 7.55, longitude: 37.85),
+    City(id: 'ce-02', cityName: 'Butajira', region: 'Central Ethiopia', latitude: 8.12, longitude: 38.37),
+    City(id: 'ce-03', cityName: 'Welkite', region: 'Central Ethiopia', latitude: 8.28, longitude: 37.78),
+    City(id: 'ce-04', cityName: 'Worabe', region: 'Central Ethiopia', latitude: 7.85, longitude: 38.17),
+    City(id: 'ce-05', cityName: 'Agena', region: 'Central Ethiopia', latitude: 8.00, longitude: 38.00),
+    City(id: 'ce-06', cityName: 'Durame', region: 'Central Ethiopia', latitude: 7.23, longitude: 37.88),
+    
+    // Somali
+    City(id: 'so-01', cityName: 'Jijiga', region: 'Somali', latitude: 9.35, longitude: 42.8),
+    City(id: 'so-02', cityName: 'Gode', region: 'Somali', latitude: 5.95, longitude: 43.55),
+    City(id: 'so-03', cityName: 'Kebridahar', region: 'Somali', latitude: 6.73, longitude: 44.27),
+    City(id: 'so-04', cityName: 'Degahbur', region: 'Somali', latitude: 8.22, longitude: 43.55),
+    City(id: 'so-05', cityName: 'Warder', region: 'Somali', latitude: 6.98, longitude: 45.33),
+    City(id: 'so-06', cityName: 'Tog Wajale', region: 'Somali', latitude: 9.60, longitude: 43.33),
+    City(id: 'so-07', cityName: 'Fik', region: 'Somali', latitude: 8.13, longitude: 42.30),
+    City(id: 'so-08', cityName: 'Shinile', region: 'Somali', latitude: 9.68, longitude: 41.85),
+    
+    // Dire Dawa
+    City(id: 'dd-01', cityName: 'Dire Dawa', region: 'Dire Dawa', latitude: 9.59, longitude: 41.86),
+    City(id: 'dd-02', cityName: 'Melka Jebdu', region: 'Dire Dawa', latitude: 9.62, longitude: 41.80),
+    
+    // Harari
+    City(id: 'ha-01', cityName: 'Harar', region: 'Harari', latitude: 9.31, longitude: 42.12),
+    
+    // Afar
+    City(id: 'af-01', cityName: 'Semera', region: 'Afar', latitude: 11.79, longitude: 41.0),
+    City(id: 'af-02', cityName: 'Logia', region: 'Afar', latitude: 11.73, longitude: 40.96),
+    City(id: 'af-03', cityName: 'Awash', region: 'Afar', latitude: 8.98, longitude: 40.17),
+    City(id: 'af-04', cityName: 'Asaita', region: 'Afar', latitude: 11.57, longitude: 41.43),
+    City(id: 'af-05', cityName: 'Gewane', region: 'Afar', latitude: 10.17, longitude: 40.65),
+    City(id: 'af-06', cityName: 'Dubti', region: 'Afar', latitude: 11.73, longitude: 41.08),
+    
+    // Gambela
+    City(id: 'ga-01', cityName: 'Gambela', region: 'Gambela', latitude: 8.25, longitude: 34.58),
+    City(id: 'ga-02', cityName: 'Itang', region: 'Gambela', latitude: 8.20, longitude: 34.27),
+    City(id: 'ga-03', cityName: 'Pugnido', region: 'Gambela', latitude: 7.63, longitude: 34.23),
+    City(id: 'ga-04', cityName: 'Gambella', region: 'Gambela', latitude: 8.25, longitude: 34.58),
+    
+    // Benishangul-Gumuz
+    City(id: 'bg-01', cityName: 'Asosa', region: 'Benishangul-Gumuz', latitude: 10.06, longitude: 34.53),
+    City(id: 'bg-02', cityName: 'Gilgel Beles', region: 'Benishangul-Gumuz', latitude: 11.13, longitude: 36.33),
+    City(id: 'bg-03', cityName: 'Kamashi', region: 'Benishangul-Gumuz', latitude: 9.50, longitude: 35.83),
+    City(id: 'bg-04', cityName: 'Metekel', region: 'Benishangul-Gumuz', latitude: 10.5, longitude: 36.0),
+    City(id: 'bg-05', cityName: 'Bambasi', region: 'Benishangul-Gumuz', latitude: 9.75, longitude: 34.73),
+  ];
+
+  static List<String> get regions => [
+    'All',
+    'Addis Ababa',
+    'Oromia',
+    'Amhara',
+    'Tigray',
+    'Sidama',
+    'South Ethiopia',
+    'Central Ethiopia',
+    'Somali',
+    'Dire Dawa',
+    'Harari',
+    'Afar',
+    'Gambela',
+    'Benishangul-Gumuz',
+  ];
+}
