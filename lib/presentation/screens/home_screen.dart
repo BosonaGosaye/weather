@@ -242,7 +242,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 _buildBackgroundDecoration(weather.conditionId, isDark),
                 Positioned.fill(
-                  child: WeatherParticles(conditionId: weather.conditionId),
+                  child: WeatherParticles(
+                    conditionId: weather.conditionId,
+                    isDark: isDark,
+                  ),
                 ),
                 RefreshIndicator(
                   onRefresh: () async {

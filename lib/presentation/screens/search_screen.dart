@@ -34,16 +34,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _filterCities(String query) {
     setState(() {
       final lowercaseQuery = query.toLowerCase();
-      if (lowercaseQuery.isEmpty) {
-        _filteredCities = List.from(EthiopianCitiesData.cities);
-      } else {
-        _filteredCities = EthiopianCitiesData.cities.where((city) {
-          final cityName = city.cityName.toLowerCase();
-          final matchesQuery = cityName.contains(lowercaseQuery);
-          final matchesRegion = _selectedRegion == 'All' || city.region == _selectedRegion;
-          return matchesQuery && matchesRegion;
-        }).toList();
-      }
+      
+      _filteredCities = EthiopianCitiesData.cities.where((city) {
+        final cityName = city.cityName.toLowerCase();
+        final matchesQuery = lowercaseQuery.isEmpty || cityName.contains(lowercaseQuery);
+        final matchesRegion = _selectedRegion == 'All' || city.region == _selectedRegion;
+        return matchesQuery && matchesRegion;
+      }).toList();
 
       // Sort: prioritize those that start with query, then alphabetical
       _filteredCities.sort((a, b) {
@@ -137,12 +134,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         label: Text(region),
                         selected: isSelected,
                         onSelected: (selected) {
-                          if (selected) {
-                            setState(() {
-                              _selectedRegion = region;
-                              _filterCities(_controller.text);
-                            });
-                          }
+                          setState(() {
+                            _selectedRegion = region;
+                            _filterCities(_controller.text);
+                          });
                         },
                         selectedColor: Colors.white,
                         labelStyle: TextStyle(

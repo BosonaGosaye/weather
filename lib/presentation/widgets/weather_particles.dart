@@ -3,8 +3,9 @@ import 'dart:math';
 
 class WeatherParticles extends StatefulWidget {
   final int conditionId;
+  final bool isDark;
   
-  const WeatherParticles({super.key, required this.conditionId});
+  const WeatherParticles({super.key, required this.conditionId, this.isDark = false});
 
   @override
   State<WeatherParticles> createState() => _WeatherParticlesState();
@@ -60,7 +61,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       y: 0.15,
       speed: 0,
       size: 80,
-      type: ParticleType.sun,
+      type: widget.isDark ? ParticleType.moon : ParticleType.sun,
       angle: 0,
       opacity: sunOpacity,
     ));
@@ -88,7 +89,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
     if (conditionId >= 500 && conditionId < 600) return ParticleType.rain;
     if (conditionId >= 600 && conditionId < 700) return ParticleType.snow;
     if (conditionId >= 700 && conditionId < 800) return ParticleType.mist;
-    if (conditionId == 800) return ParticleType.sun;
+    if (conditionId == 800) return widget.isDark ? ParticleType.moon : ParticleType.sun;
     if (conditionId > 800) return ParticleType.cloud;
     return ParticleType.none;
   }
@@ -108,6 +109,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       case ParticleType.cloud:
         return 15;
       case ParticleType.sun:
+      case ParticleType.moon:
         return 1;
       default:
         return 0;
@@ -129,6 +131,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       case ParticleType.cloud:
         return 0.0002 + _random.nextDouble() * 0.0003;
       case ParticleType.sun:
+      case ParticleType.moon:
         return 0;
       default:
         return 0;
@@ -150,6 +153,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       case ParticleType.cloud:
         return 60 + _random.nextDouble() * 40;
       case ParticleType.sun:
+      case ParticleType.moon:
         return 60;
       default:
         return 2;
@@ -165,7 +169,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
 
   void _updateParticles() {
     for (var particle in _particles) {
-      if (particle.type == ParticleType.sun) continue;
+      if (particle.type == ParticleType.sun || particle.type == ParticleType.moon) continue;
       
       particle.y += particle.speed;
       
@@ -219,6 +223,7 @@ enum ParticleType {
   lightning,
   cloud,
   sun,
+  moon,
 }
 
 class Particle {
@@ -308,6 +313,10 @@ class ParticlePainter extends CustomPainter {
           _drawSun(canvas, Offset(x, y), particle.size, particle.opacity);
           break;
         
+        case ParticleType.moon:
+          _drawMoon(canvas, Offset(x, y), particle.size, particle.opacity);
+          break;
+        
         default:
           break;
       }
@@ -359,6 +368,47 @@ class ParticlePainter extends CustomPainter {
     }
   }
 
+  void _drawMoon(Canvas canvas, Offset center, double size, double opacity) {
+    // Moon Glow
+    final glowPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          const Color(0xFF94A3B8).withOpacity(0.3 * opacity),
+          const Color(0xFF94A3B8).withOpacity(0),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: size * 2.5));
+    canvas.drawCircle(center, size * 2.5, glowPaint);
+
+    // Moon Body
+    final moonPaint = Paint()
+      ..color = Colors.white.withOpacity(0.9 * opacity);
+    
+    // Draw the main circle
+    canvas.drawCircle(center, size, moonPaint);
+
+    // Draw the "crescent" part by clearing a shifted circle
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(1.0)
+      ..blendMode = BlendMode.dstOut;
+
+    // Shift the second circle to create a crescent effect
+    canvas.saveLayer(Rect.fromCircle(center: center, radius: size), Paint());
+    canvas.drawCircle(center, size, moonPaint);
+    canvas.drawCircle(
+      Offset(center.dx - (size * 0.5), center.dy - (size * 0.3)), 
+      size * 0.9, 
+      shadowPaint
+    );
+    canvas.restore();
+
+    // Subtle craters
+    final craterPaint = Paint()
+      ..color = Colors.black.withOpacity(0.05 * opacity);
+    canvas.drawCircle(Offset(center.dx + size * 0.3, center.dy + size * 0.2), size * 0.15, craterPaint);
+    canvas.drawCircle(Offset(center.dx - size * 0.2, center.dy + size * 0.5), size * 0.1, craterPaint);
+    canvas.drawCircle(Offset(center.dx + size * 0.5, center.dy - size * 0.4), size * 0.12, craterPaint);
+  }
+
   void _drawLightningBolt(Canvas canvas, Offset start, double length, Paint paint) {
     final path = Path();
     path.moveTo(start.dx, start.dy);
@@ -392,6 +442,8 @@ class ParticlePainter extends CustomPainter {
         return Colors.white;
       case ParticleType.sun:
         return Colors.orange;
+      case ParticleType.moon:
+        return const Color(0xFF94A3B8);
       default:
         return Colors.white;
     }
