@@ -17,11 +17,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _controller = TextEditingController();
   String _selectedRegion = 'All';
   List<City> _filteredCities = List.from(EthiopianCitiesData.cities);
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _filteredCities.sort((a, b) => a.cityName.compareTo(b.cityName));
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _filterCities(String query) {
@@ -155,62 +162,69 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 child: Container(
                   margin: const EdgeInsets.only(top: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withOpacity(0.05),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                   ),
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _filteredCities.length + (_controller.text.isNotEmpty ? 1 : 0),
-                      separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.1)),
-                      itemBuilder: (context, index) {
-                        if (_controller.text.isNotEmpty && index == 0) {
+                    child: Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: true,
+                      thickness: 6,
+                      radius: const Radius.circular(10),
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _filteredCities.length + (_controller.text.isNotEmpty ? 1 : 0),
+                        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.05)),
+                        itemBuilder: (context, index) {
+                          if (_controller.text.isNotEmpty && index == 0) {
+                            return ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.search, color: Colors.white, size: 20),
+                              ),
+                              title: Text(
+                                'Search for "${_controller.text}"',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: const Text(
+                                'Search globally',
+                                style: TextStyle(color: Colors.white70, fontSize: 12),
+                              ),
+                              trailing: const Icon(Icons.public, color: Colors.white30, size: 16),
+                              onTap: () => _selectCityByName(_controller.text),
+                            );
+                          }
+
+                          final cityIndex = _controller.text.isNotEmpty ? index - 1 : index;
+                          final city = _filteredCities[cityIndex];
                           return ListTile(
                             leading: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.blueAccent.withOpacity(0.2),
+                                color: Colors.white.withOpacity(0.08),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.search, color: Colors.white, size: 20),
+                              child: const Icon(Icons.location_city, color: Colors.white, size: 20),
                             ),
                             title: Text(
-                              'Search for "${_controller.text}"',
+                              city.cityName,
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
-                            subtitle: const Text(
-                              'Search globally',
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
+                            subtitle: Text(
+                              city.region,
+                              style: const TextStyle(color: Colors.white70, fontSize: 12),
                             ),
-                            trailing: const Icon(Icons.public, color: Colors.white30, size: 16),
-                            onTap: () => _selectCityByName(_controller.text),
+                            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white30, size: 16),
+                            onTap: () => _selectCity(city),
                           );
-                        }
-
-                        final cityIndex = _controller.text.isNotEmpty ? index - 1 : index;
-                        final city = _filteredCities[cityIndex];
-                        return ListTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.location_city, color: Colors.white, size: 20),
-                          ),
-                          title: Text(
-                            city.cityName,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            city.region,
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white30, size: 16),
-                          onTap: () => _selectCity(city),
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ),

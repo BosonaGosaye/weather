@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -17,6 +18,7 @@ import '../widgets/weather_info_card.dart';
 import 'search_screen.dart';
 import 'favorites_screen.dart';
 import '../widgets/weather_chart_widget.dart';
+import '../widgets/weather_particles.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -49,28 +51,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   List<Color> _getBackgroundColors(int conditionId, bool isDark) {
-    if (isDark) {
+    // Night/Clear
+    if (isDark && conditionId == 800) {
       return [const Color(0xFF0F2027), const Color(0xFF203A43), const Color(0xFF2C5364)];
     }
     
     // Sunny/Clear
     if (conditionId == 800) {
-      return [const Color(0xFF00B4DB), const Color(0xFF0083B0)]; // Deep Vibrant Blue Sky
+      return [const Color(0xFF4FACFE), const Color(0xFF00F2FE)]; // Vibrant Modern Blue
     }
-    // Cloudy (Partly to Mostly Cloudy)
+    // Cloudy
     if (conditionId > 800) {
-      return [const Color(0xFF2193b0), const Color(0xFF7ecce0)]; // Lighter Blue with soft grey tint
+      return [const Color(0xFF6190E8), const Color(0xFFA7BFE8)]; // Modern Soft Blue/Grey
     }
     // Rain
     if (conditionId >= 500 && conditionId < 600) {
-      return [const Color(0xFF485563), const Color(0xFF29323C)];
+      return [const Color(0xFF2B32B2), const Color(0xFF1488CC)];
     }
     // Storm
     if (conditionId >= 200 && conditionId < 300) {
-      return [const Color(0xFF1D2671), const Color(0xFFC33764)];
+      return [const Color(0xFF0F0C29), const Color(0xFF302B63), const Color(0xFF24243E)];
+    }
+    // Snow
+    if (conditionId >= 600 && conditionId < 700) {
+      return [const Color(0xFF83a4d4), const Color(0xFFb6fbff)];
     }
     
-    return [const Color(0xFF2193b0), const Color(0xFF6dd5ed)];
+    return isDark 
+        ? [const Color(0xFF1a2a6c), const Color(0xFFb21f1f), const Color(0xFFfdbb2d)]
+        : [const Color(0xFF2193b0), const Color(0xFF6dd5ed)];
   }
 
   Widget _buildBackgroundDecoration(int conditionId, bool isDark) {
@@ -127,23 +136,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildGlassCard({required Widget child, Color? color}) {
+  Widget _buildGlassCard({required Widget child, Color? color, double blur = 15, double opacity = 0.12}) {
     return Container(
       decoration: BoxDecoration(
-        color: (color ?? Colors.white).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
+        color: (color ?? Colors.white).withOpacity(opacity),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.25),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+            spreadRadius: -5,
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: child,
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: child,
+        ),
       ),
     );
   }
@@ -223,6 +239,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Stack(
               children: [
                 _buildBackgroundDecoration(weather.conditionId, isDark),
+                Positioned.fill(
+                  child: WeatherParticles(conditionId: weather.conditionId),
+                ),
                 RefreshIndicator(
                   onRefresh: () async {
                     await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
@@ -287,10 +306,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ],
                             ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
                             
-                            if (locationDetails.street.isNotEmpty)
+                            if (locationDetails.region.isNotEmpty)
                               Text(
-                                locationDetails.street,
-                                style: const TextStyle(color: Colors.white70, fontSize: 16),
+                                locationDetails.region,
+                                style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
                               ).animate().fadeIn(delay: 200.ms),
                             
                             const SizedBox(height: 40),
@@ -300,24 +319,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               children: [
                                 Hero(
                                   tag: 'weather_icon',
-                                  child: Image.network(
-                                    'https://openweathermap.org/img/wn/${weather.iconCode}@4x.png',
-                                    height: 120, // Slightly smaller to avoid overflow
-                                    color: Colors.white,
-                                    colorBlendMode: BlendMode.dstIn,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withOpacity(0.25),
+                                          blurRadius: 50,
+                                          spreadRadius: 5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Image.network(
+                                      'https://openweathermap.org/img/wn/${weather.iconCode}@4x.png',
+                                      height: 140, // Increased size
+                                      color: Colors.white,
+                                      colorBlendMode: BlendMode.dstIn,
+                                    ),
                                   ),
-                                ).animate().scale(duration: 800.ms, curve: Curves.elasticOut),
+                                ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                                 .scale(duration: 1.seconds, curve: Curves.easeInOut)
+                                 .moveY(begin: -5, end: 5, duration: 2.seconds)
+                                 .then()
+                                 .shimmer(duration: 3.seconds, color: Colors.white.withOpacity(0.2)),
                                 Flexible(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start, // Align to start
                                     children: [
                                       FittedBox(
                                         child: Text(
                                           '${weather.temperature.round()}°',
                                           style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 90,
-                                            fontWeight: FontWeight.w200,
+                                            fontSize: 100, // Even larger
+                                            fontWeight: FontWeight.w100, // Thinner for modern look
+                                            letterSpacing: -4,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black12,
+                                                blurRadius: 20,
+                                                offset: Offset(0, 10),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -328,17 +372,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         ).toUpperCase(),
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 12, // Smaller to fit multiple languages
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 1.1,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 2,
                                         ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 3,
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
-                                ).animate().fadeIn(duration: 800.ms).moveX(begin: 30, end: 0),
+                                ).animate().fadeIn(duration: 1.seconds).moveX(begin: 20, end: 0),
                               ],
                             ),
                             
@@ -365,26 +408,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             const SizedBox(height: 32),
                             // Main Stats Grid
                             _buildGlassCard(
+                              opacity: 0.08,
                               child: Padding(
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(24),
                                 child: GridView(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
-                                    mainAxisSpacing: 16,
-                                    crossAxisSpacing: 16,
-                                    mainAxisExtent: 100, // Fixed height to prevent overflow
+                                    mainAxisSpacing: 20,
+                                    crossAxisSpacing: 20,
+                                    mainAxisExtent: 110,
                                   ),
                                   children: [
                                     _buildStatCard(context, AppLocalizations.of(context)!.feelsLike, '${weather.feelsLike.round()}°', Icons.thermostat_rounded, Colors.orangeAccent),
                                     _buildStatCard(context, AppLocalizations.of(context)!.humidity, '${weather.humidity}%', Icons.water_drop_rounded, Colors.blueAccent),
-                                    _buildStatCard(context, AppLocalizations.of(context)!.wind, '${weather.windSpeed} ${AppLocalizations.of(context)!.windUnit}', Icons.air_rounded, Colors.greenAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.wind, '${weather.windSpeed} ${AppLocalizations.of(context)!.windUnit}', Icons.air_rounded, Colors.tealAccent),
                                     _buildStatCard(context, AppLocalizations.of(context)!.pressure, '${weather.pressure} hPa', Icons.speed_rounded, Colors.purpleAccent),
                                   ],
                                 ),
                               ),
-                            ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+                            ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0),
                             
                             const SizedBox(height: 32),
                             _buildSectionTitle(context, AppLocalizations.of(context)!.hourlyForecast),
@@ -477,28 +521,84 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: color, size: 24).animate().rotate(duration: 500.ms),
-        const SizedBox(height: 4),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.1),
+            Colors.white.withOpacity(0.05),
+          ],
         ),
-        Text(title, style: const TextStyle(color: Colors.white70, fontSize: 10), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-      ],
-    );
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withOpacity(0.2),
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 1500.ms),
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 600.ms).scale();
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+    return Container(
+      padding: const EdgeInsets.only(left: 4),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: Colors.white.withOpacity(0.6),
+            width: 4,
+          ),
+        ),
       ),
-    );
+      child: Padding(
+        padding: const EdgeInsets.only(left: 12),
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2, end: 0);
   }
 
   Widget _buildForecastList(AsyncValue<List<dynamic>> asyncValue, Locale locale, {bool isHourly = false}) {
