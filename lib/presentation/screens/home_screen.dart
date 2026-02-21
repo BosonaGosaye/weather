@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../domain/entities/weather.dart';
+import '../../domain/entities/forecast.dart';
 import '../../core/utils/weather_translator.dart';
 import '../../core/utils/weather_tips.dart';
 import '../../l10n/app_localizations.dart';
@@ -52,8 +54,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   List<Color> _getBackgroundColors(int conditionId, bool isDark) {
     // Night/Clear
-    if (isDark && conditionId == 800) {
-      return [const Color(0xFF0F2027), const Color(0xFF203A43), const Color(0xFF2C5364)];
+    if (isDark) {
+      return [const Color(0xFF0F172A), const Color(0xFF1E293B)]; // Rich Dark Slate for Dark Mode
     }
     
     // Sunny/Clear
@@ -83,29 +85,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildBackgroundDecoration(int conditionId, bool isDark) {
-    if (isDark) return const SizedBox.shrink();
-
-    // Clear Sky - Add a subtle sun glow
-    if (conditionId == 800) {
+    // Night/Clear - Add a subtle moon glow
+    if (isDark && conditionId == 800) {
       return Positioned(
         top: -100,
         right: -100,
         child: Container(
-          width: 400,
-          height: 400,
+          width: 300,
+          height: 300,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                Colors.yellow.withOpacity(0.3),
-                Colors.yellow.withOpacity(0),
+                const Color(0xFF94A3B8).withOpacity(0.15),
+                const Color(0xFF94A3B8).withOpacity(0),
               ],
             ),
           ),
-        ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-         .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 5.seconds),
-      );
+        ),
+      ).animate().scale(duration: 2.seconds, curve: Curves.easeOut);
     }
+
+    if (isDark) return const SizedBox.shrink();
 
     // Cloudy - Add some floating clouds
     if (conditionId > 800) {
@@ -136,18 +137,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildGlassCard({required Widget child, Color? color, double blur = 15, double opacity = 0.12}) {
+  Widget _buildGlassCard({required Widget child, BuildContext? context, Color? color, double blur = 15, double opacity = 0.12}) {
+    final isDark = context != null ? Theme.of(context).brightness == Brightness.dark : false;
     return Container(
       decoration: BoxDecoration(
-        color: (color ?? Colors.white).withOpacity(opacity),
+        color: (color ?? (isDark ? Colors.black : Colors.white)).withOpacity(isDark ? 0.25 : opacity),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: Colors.white.withOpacity(0.25),
+          color: (isDark ? Colors.white10 : Colors.white).withOpacity(0.25),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
             blurRadius: 30,
             offset: const Offset(0, 10),
             spreadRadius: -5,
@@ -324,7 +326,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.white.withOpacity(0.25),
+                                          color: (isDark ? Colors.blue : Colors.white).withOpacity(0.25),
                                           blurRadius: 50,
                                           spreadRadius: 5,
                                         ),
@@ -350,16 +352,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       FittedBox(
                                         child: Text(
                                           '${weather.temperature.round()}°',
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: isDark ? Colors.white : Colors.white,
                                             fontSize: 100, // Even larger
                                             fontWeight: FontWeight.w100, // Thinner for modern look
                                             letterSpacing: -4,
                                             shadows: [
                                               Shadow(
-                                                color: Colors.black12,
+                                                color: isDark ? Colors.black45 : Colors.black12,
                                                 blurRadius: 20,
-                                                offset: Offset(0, 10),
+                                                offset: const Offset(0, 10),
                                               ),
                                             ],
                                           ),
@@ -370,8 +372,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           weather.description,
                                           weather.conditionId,
                                         ).toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: isDark ? Colors.white.withOpacity(0.9) : Colors.white,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           letterSpacing: 2,
@@ -388,16 +390,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             const SizedBox(height: 40),
                             // Smart Tip Card
                             _buildGlassCard(
+                              context: context,
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.lightbulb_outline_rounded, color: Colors.yellowAccent),
-                                    const SizedBox(width: 12),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(isDark ? 0.1 : 0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.lightbulb_outline_rounded, color: isDark ? Colors.yellow.withOpacity(0.8) : Colors.yellow),
+                                    ),
+                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Text(
                                         _getWeatherTip(weather.conditionId, weather.temperature, context),
-                                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                                        style: TextStyle(
+                                          color: isDark ? Colors.white : Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.4,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -408,6 +423,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             const SizedBox(height: 32),
                             // Main Stats Grid
                             _buildGlassCard(
+                              context: context,
                               opacity: 0.08,
                               child: Padding(
                                 padding: const EdgeInsets.all(24),
@@ -421,10 +437,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     mainAxisExtent: 110,
                                   ),
                                   children: [
-                                    _buildStatCard(context, AppLocalizations.of(context)!.feelsLike, '${weather.feelsLike.round()}°', Icons.thermostat_rounded, Colors.orangeAccent),
-                                    _buildStatCard(context, AppLocalizations.of(context)!.humidity, '${weather.humidity}%', Icons.water_drop_rounded, Colors.blueAccent),
-                                    _buildStatCard(context, AppLocalizations.of(context)!.wind, '${weather.windSpeed} ${AppLocalizations.of(context)!.windUnit}', Icons.air_rounded, Colors.tealAccent),
-                                    _buildStatCard(context, AppLocalizations.of(context)!.pressure, '${weather.pressure} hPa', Icons.speed_rounded, Colors.purpleAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.feelsLike, '${weather.feelsLike.round()}°', Icons.thermostat_rounded, isDark ? Colors.orange : Colors.orangeAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.humidity, '${weather.humidity}%', Icons.water_drop_rounded, isDark ? Colors.blue : Colors.blueAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.wind, '${weather.windSpeed} ${AppLocalizations.of(context)!.windUnit}', Icons.air_rounded, isDark ? Colors.teal : Colors.tealAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.pressure, '${weather.pressure} hPa', Icons.speed_rounded, isDark ? Colors.purple : Colors.purpleAccent),
                                   ],
                                 ),
                               ),
@@ -473,7 +489,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: _buildSkeleton(context),
           ),
         ),
-        error: (err, _) => Container(
+        error: (e, st) => Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -484,35 +500,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.cloud_off_rounded, size: 80, color: Colors.white70),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Connection lost',
-                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Please check your internet and try again',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton.icon(
-                    onPressed: () => ref.read(weatherStateProvider.notifier).getWeatherByLocation(),
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(AppLocalizations.of(context)!.retry),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue[900],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                  ),
-                ],
-              ),
+            child: Text(
+              'Error: $e',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
         ),
@@ -520,152 +510,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
+  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, Color iconColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: iconColor, size: 28),
+        const SizedBox(height: 12),
+        Text(
+          value,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withOpacity(0.2),
-            ),
-            child: Icon(icon, color: color, size: 28),
-          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 1500.ms),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark ? Colors.white60 : Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-          const SizedBox(height: 2),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 600.ms).scale();
+        ),
+      ],
+    );
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Container(
-      padding: const EdgeInsets.only(left: 4),
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: Colors.white.withOpacity(0.6),
-            width: 4,
-          ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, bottom: 8, top: 16),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2, end: 0);
+    ).animate().fadeIn(duration: 500.ms).moveX(begin: -10, end: 0);
   }
 
-  Widget _buildForecastList(AsyncValue<List<dynamic>> asyncValue, Locale locale, {bool isHourly = false}) {
-    // Handle Afaan Oromo locale for DateFormat which might not be supported by default intl
-    final dateLocale = locale.languageCode == 'om' ? 'en' : locale.languageCode;
-    
-    return SizedBox(
-      height: 220,
-      child: asyncValue.when(
-        data: (forecasts) {
-          if (forecasts.isEmpty) return const SizedBox.shrink();
-          return ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: forecasts.length,
-            itemBuilder: (context, index) {
-              final forecast = forecasts[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: _buildGlassCard(
-                  child: Container(
-                    width: 140,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          isHourly 
-                              ? DateFormat('h:mm a', dateLocale).format(forecast.date)
-                              : DateFormat('EEE, d MMM', dateLocale).format(forecast.date),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+  Widget _buildForecastList(AsyncValue<List<Forecast>> forecast, Locale locale, {bool isHourly = false}) {
+    return forecast.when(
+      data: (list) => SizedBox(
+        height: isHourly ? 130 : 160,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            final item = list[index];
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Container(
+              width: 100,
+              margin: const EdgeInsets.only(right: 12),
+              child: _buildGlassCard(
+                context: context,
+                opacity: 0.08,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isHourly
+                            ? DateFormat('ha').format(item.date)
+                            : DateFormat('EEE').format(item.date),
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(height: 8),
-                        Image.network(
-                          'https://openweathermap.org/img/wn/${forecast.iconCode}@2x.png',
-                          height: 50,
-                          color: Colors.white,
-                        ).animate().scale(),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${forecast.temperature.round()}°',
-                          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Image.network(
+                        'https://openweathermap.org/img/wn/${item.iconCode}.png',
+                        height: 40,
+                        width: 40,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${item.temperature.round()}°',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                         ),
-                        const SizedBox(height: 4),
-                        Flexible(
-                          child: Text(
-                            WeatherTranslator.getAllLanguagesDescription(
-                              forecast.description,
-                              forecast.conditionId,
-                            ),
-                            style: const TextStyle(color: Colors.white70, fontSize: 10),
-                            textAlign: TextAlign.center,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-        error: (e, s) => const SizedBox.shrink(),
+              ),
+            ).animate().fadeIn(delay: (index * 100).ms).scale();
+          },
+        ),
       ),
+      loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
+      error: (e, st) => Center(child: Text('Error: $e', style: const TextStyle(color: Colors.white))),
     );
   }
 
