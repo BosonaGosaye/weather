@@ -368,9 +368,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         ),
                                       ),
                                       Text(
-                                        WeatherTranslator.getAllLanguagesDescription(
+                                        WeatherTranslator.translateDescription(
+                                          context,
                                           weather.description,
                                           weather.conditionId,
+                                          locale,
                                         ).toUpperCase(),
                                         style: TextStyle(
                                           color: isDark ? Colors.white.withOpacity(0.9) : Colors.white,
@@ -556,60 +558,118 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildForecastList(AsyncValue<List<Forecast>> forecast, Locale locale, {bool isHourly = false}) {
     return forecast.when(
-      data: (list) => SizedBox(
-        height: isHourly ? 130 : 160,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: list.length,
-          itemBuilder: (context, index) {
-            final item = list[index];
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-            return Container(
-              width: 100,
-              margin: const EdgeInsets.only(right: 12),
-              child: _buildGlassCard(
-                context: context,
-                opacity: 0.08,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        isHourly
-                            ? DateFormat('ha').format(item.date)
-                            : DateFormat('EEE').format(item.date),
-                        style: TextStyle(
-                          color: isDark ? Colors.white70 : Colors.white70,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Image.network(
-                        'https://openweathermap.org/img/wn/${item.iconCode}.png',
-                        height: 40,
-                        width: 40,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${item.temperature.round()}°',
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ).animate().fadeIn(delay: (index * 100).ms).scale();
-          },
-        ),
-      ),
+      data: (list) {
+        if (isHourly) {
+          final now = DateTime.now();
+          final dayForecast = list.where((f) => f.date.hour >= 6 && f.date.hour < 18).toList();
+          final nightForecast = list.where((f) => f.date.hour < 6 || f.date.hour >= 18).toList();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (dayForecast.isNotEmpty) ...[
+                _buildSectionSubtitle(locale.languageCode == 'am' ? 'ቀን' : locale.languageCode == 'om' ? 'Guyyaa' : 'Day'),
+                const SizedBox(height: 8),
+                _buildHorizontalList(dayForecast, locale, true),
+                const SizedBox(height: 16),
+              ],
+              if (nightForecast.isNotEmpty) ...[
+                _buildSectionSubtitle(locale.languageCode == 'am' ? 'ምሽት' : locale.languageCode == 'om' ? 'Halkan' : 'Night'),
+                const SizedBox(height: 8),
+                _buildHorizontalList(nightForecast, locale, true),
+              ],
+            ],
+          );
+        }
+        return _buildHorizontalList(list, locale, false);
+      },
       loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
       error: (e, st) => Center(child: Text('Error: $e', style: const TextStyle(color: Colors.white))),
+    );
+  }
+
+  Widget _buildSectionSubtitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalList(List<Forecast> list, Locale locale, bool isHourly) {
+    return SizedBox(
+      height: 160,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          final item = list[index];
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return Container(
+            width: 110,
+            margin: const EdgeInsets.only(right: 12),
+            child: _buildGlassCard(
+              context: context,
+              opacity: 0.08,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isHourly
+                          ? DateFormat('h:mm a').format(item.date)
+                          : DateFormat('EEE, MMM d').format(item.date),
+                      style: TextStyle(
+                        color: isDark ? Colors.white70 : Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Image.network(
+                      'https://openweathermap.org/img/wn/${item.iconCode}.png',
+                      height: 40,
+                      width: 40,
+                    ),
+                    Text(
+                      '${item.temperature.round()}°',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      WeatherTranslator.translateDescription(
+                        context,
+                        item.description,
+                        item.conditionId,
+                        locale,
+                      ),
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ).animate().fadeIn(delay: (index * 100).ms).scale();
+        },
+      ),
     );
   }
 

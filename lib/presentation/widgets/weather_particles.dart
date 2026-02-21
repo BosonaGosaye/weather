@@ -47,14 +47,33 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       ));
     }
 
-    // Add some clouds for cloudy/misty conditions for AR feel
-    if (widget.conditionId > 800 || (widget.conditionId >= 700 && widget.conditionId < 800)) {
-      for (int i = 0; i < 5; i++) {
+    // Add a sun for all conditions, but with varying opacity
+    double sunOpacity = 1.0;
+    if (widget.conditionId >= 200 && widget.conditionId < 300) sunOpacity = 0.1; // Thunderstorm
+    else if (widget.conditionId >= 300 && widget.conditionId < 600) sunOpacity = 0.2; // Rain
+    else if (widget.conditionId >= 600 && widget.conditionId < 700) sunOpacity = 0.1; // Snow
+    else if (widget.conditionId >= 700 && widget.conditionId < 800) sunOpacity = 0.3; // Mist/Fog
+    else if (widget.conditionId > 800) sunOpacity = 0.5; // Cloudy
+    
+    _particles.add(Particle(
+      x: 0.8,
+      y: 0.15,
+      speed: 0,
+      size: 80,
+      type: ParticleType.sun,
+      angle: 0,
+      opacity: sunOpacity,
+    ));
+
+    // Add some clouds for all conditions except perfectly clear
+    if (widget.conditionId != 800) {
+      final cloudCount = widget.conditionId > 800 ? 10 : 5;
+      for (int i = 0; i < cloudCount; i++) {
         _particles.add(Particle(
           x: _random.nextDouble(),
-          y: _random.nextDouble() * 0.5,
+          y: _random.nextDouble() * 0.4,
           speed: 0.0005 + _random.nextDouble() * 0.0005,
-          size: 100 + _random.nextDouble() * 100,
+          size: 120 + _random.nextDouble() * 80,
           type: ParticleType.cloud,
           angle: 0,
           opacity: 0.1 + _random.nextDouble() * 0.2,
@@ -69,6 +88,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
     if (conditionId >= 500 && conditionId < 600) return ParticleType.rain;
     if (conditionId >= 600 && conditionId < 700) return ParticleType.snow;
     if (conditionId >= 700 && conditionId < 800) return ParticleType.mist;
+    if (conditionId == 800) return ParticleType.sun;
     if (conditionId > 800) return ParticleType.cloud;
     return ParticleType.none;
   }
@@ -87,6 +107,8 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
         return 50;
       case ParticleType.cloud:
         return 15;
+      case ParticleType.sun:
+        return 1;
       default:
         return 0;
     }
@@ -106,6 +128,8 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
         return 0.008 + _random.nextDouble() * 0.004;
       case ParticleType.cloud:
         return 0.0002 + _random.nextDouble() * 0.0003;
+      case ParticleType.sun:
+        return 0;
       default:
         return 0;
     }
@@ -125,6 +149,8 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
         return 2 + _random.nextDouble() * 1;
       case ParticleType.cloud:
         return 60 + _random.nextDouble() * 40;
+      case ParticleType.sun:
+        return 60;
       default:
         return 2;
     }
@@ -139,6 +165,8 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
 
   void _updateParticles() {
     for (var particle in _particles) {
+      if (particle.type == ParticleType.sun) continue;
+      
       particle.y += particle.speed;
       
       if (particle.type == ParticleType.rain || 
@@ -190,6 +218,7 @@ enum ParticleType {
   mist,
   lightning,
   cloud,
+  sun,
 }
 
 class Particle {
@@ -275,9 +304,58 @@ class ParticlePainter extends CustomPainter {
           }
           break;
         
+        case ParticleType.sun:
+          _drawSun(canvas, Offset(x, y), particle.size, particle.opacity);
+          break;
+        
         default:
           break;
       }
+    }
+  }
+
+  void _drawSun(Canvas canvas, Offset center, double size, double opacity) {
+    // Sun Glow
+    final glowPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.orange.withOpacity(0.3 * opacity),
+          Colors.orange.withOpacity(0),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: size * 3));
+    canvas.drawCircle(center, size * 3, glowPaint);
+
+    // Sun Core
+    final corePaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.yellowAccent.withOpacity(opacity),
+          Colors.orangeAccent.withOpacity(opacity * 0.8),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: size));
+    canvas.drawCircle(center, size, corePaint);
+
+    // Sun Rays
+    final rayPaint = Paint()
+      ..color = Colors.yellowAccent.withOpacity(0.6 * opacity)
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
+    final rayCount = 12;
+    final angleStep = (2 * pi) / rayCount;
+    final rotation = DateTime.now().millisecondsSinceEpoch / 2000;
+
+    for (int i = 0; i < rayCount; i++) {
+      final angle = i * angleStep + rotation;
+      final start = Offset(
+        center.dx + cos(angle) * (size * 1.2),
+        center.dy + sin(angle) * (size * 1.2),
+      );
+      final end = Offset(
+        center.dx + cos(angle) * (size * 1.8),
+        center.dy + sin(angle) * (size * 1.8),
+      );
+      canvas.drawLine(start, end, rayPaint);
     }
   }
 
@@ -312,6 +390,8 @@ class ParticlePainter extends CustomPainter {
         return Colors.yellowAccent;
       case ParticleType.cloud:
         return Colors.white;
+      case ParticleType.sun:
+        return Colors.orange;
       default:
         return Colors.white;
     }
