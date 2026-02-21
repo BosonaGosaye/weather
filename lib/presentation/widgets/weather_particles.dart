@@ -48,7 +48,10 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       ));
     }
 
-    // Add a sun for all conditions, but with varying opacity
+    // Add a sun or moon based on real-time Ethiopia time (UTC+3)
+    final now = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final isNightTime = now.hour >= 18 || now.hour < 6;
+    
     double sunOpacity = 1.0;
     if (widget.conditionId >= 200 && widget.conditionId < 300) sunOpacity = 0.1; // Thunderstorm
     else if (widget.conditionId >= 300 && widget.conditionId < 600) sunOpacity = 0.2; // Rain
@@ -61,7 +64,7 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
       y: 0.15,
       speed: 0,
       size: 80,
-      type: widget.isDark ? ParticleType.moon : ParticleType.sun,
+      type: isNightTime ? ParticleType.moon : ParticleType.sun,
       angle: 0,
       opacity: sunOpacity,
     ));
@@ -84,12 +87,15 @@ class _WeatherParticlesState extends State<WeatherParticles> with SingleTickerPr
   }
 
   ParticleType _getParticleType(int conditionId) {
+    final now = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final isNightTime = now.hour >= 18 || now.hour < 6;
+
     if (conditionId >= 200 && conditionId < 300) return ParticleType.lightning;
     if (conditionId >= 300 && conditionId < 400) return ParticleType.drizzle;
     if (conditionId >= 500 && conditionId < 600) return ParticleType.rain;
     if (conditionId >= 600 && conditionId < 700) return ParticleType.snow;
     if (conditionId >= 700 && conditionId < 800) return ParticleType.mist;
-    if (conditionId == 800) return widget.isDark ? ParticleType.moon : ParticleType.sun;
+    if (conditionId == 800) return isNightTime ? ParticleType.moon : ParticleType.sun;
     if (conditionId > 800) return ParticleType.cloud;
     return ParticleType.none;
   }

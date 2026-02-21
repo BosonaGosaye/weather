@@ -19,6 +19,7 @@ import '../providers/theme_provider.dart';
 import '../widgets/weather_info_card.dart';
 import 'search_screen.dart';
 import 'favorites_screen.dart';
+import 'about_developer_screen.dart';
 import '../widgets/weather_chart_widget.dart';
 import '../widgets/weather_particles.dart';
 
@@ -187,10 +188,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.favorite_rounded, color: Colors.white),
+          icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+            MaterialPageRoute(builder: (context) => const AboutDeveloperScreen()),
           ),
         ),
         actions: [
@@ -199,6 +200,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SearchScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.favorite_rounded, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FavoritesScreen()),
             ),
           ),
           IconButton(
