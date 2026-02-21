@@ -29,9 +29,9 @@ class AboutDeveloperScreen extends StatelessWidget {
     }
 
     String getBio() {
-      if (lang == 'am') return "በተንቀሳቃሽ ስልክ መተግበሪያዎች እና በዘመናዊ የቴክኖሎጂ ውጤቶች ላይ የሚሰራ የሶፍትዌር መሐንዲስ። የኢትዮጵያን የቴክኖሎጂ እድገት ለማፋጠን እና የተሻሉ መፍትሄዎችን ለማምጣት ይተጋል።";
+      if (lang == 'am') return "በተንቀሳቃሽ ስልክ መተግበሪያዎች እና በዘመናዊ የቴክኖሎጂ ውጤቶች ላይ የሚሰራ የሶፍትዌር መሐንዲስ። የኢትዮጵያን የቴክኖሎጂ እድገት ለማፋጠን እና የተሻሉ መፍትሄዎችን ለማምጣት ይተጋለል።";
       if (lang == 'om') return "Injinera sooftiweerii kan application moobaayilaa fi teeknoolojii amayyaa irratti hojjetu. Guddina teeknoolojii Itoophiyaa ariifachiisuu fi furmaata fooyya'aa fiduuf carraaqqii taasisa.";
-      return "A passionate Software Engineer specialized in mobile application development and modern tech stacks. Dedicated to accelerating Ethiopia's digital transformation through innovative solutions.";
+      return "A passionate Software Developer specialized in mobile application development and modern tech stacks. Dedicated to accelerating Ethiopia's digital transformation through innovative solutions.";
     }
 
     String getSkillsTitle() {
