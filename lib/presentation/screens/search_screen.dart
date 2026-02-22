@@ -128,6 +128,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   itemBuilder: (context, index) {
                     final region = EthiopianCitiesData.regions[index];
                     final isSelected = _selectedRegion == region;
+                    final chipColor = isSelected 
+                        ? (isDark ? Colors.white : Colors.blue[900]) 
+                        : (isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05));
+                    final textColor = isSelected 
+                        ? (isDark ? Colors.blue[900] : Colors.white) 
+                        : (isDark ? Colors.white : Colors.black87);
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
@@ -139,12 +146,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             _filterCities(_controller.text);
                           });
                         },
-                        selectedColor: Colors.white,
+                        selectedColor: isDark ? Colors.white : Colors.blue[900],
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.blue[900] : Colors.white,
+                          color: textColor,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
-                        backgroundColor: Colors.white.withOpacity(0.1),
+                        backgroundColor: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       ),
                     );

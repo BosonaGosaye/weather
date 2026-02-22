@@ -112,8 +112,8 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
       try {
         final locale = _ref.read(localeProvider);
         // Addis Ababa Coordinates
-        const double defaultLat = 9.0333;
-        const double defaultLon = 38.7000;
+        const double defaultLat = 9.03;
+        const double defaultLon = 38.74;
         
         // Try to update location details for Addis Ababa
         await _ref.read(locationDetailsProvider.notifier).updateLocation(defaultLat, defaultLon);

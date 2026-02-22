@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _lastUpdated;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -40,6 +42,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPermissionsAndGetWeather();
       _loadLastUpdateTime();
+      _startAutoRefresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (mounted) {
+        ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      }
     });
   }
 
