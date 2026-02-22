@@ -108,17 +108,31 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
       final weather = await _getWeather.byLocation(position.latitude, position.longitude, lang: locale.languageCode);
       state = AsyncValue.data(weather);
     } catch (e, st) {
-      // Try to load cached weather on error
+      // If location fails (disabled or denied), fallback to Addis Ababa by default
       try {
-        final weather = await _ref.read(weatherRepositoryProvider).getWeatherByCity(''); 
-        if (weather != null) {
-          _ref.read(locationDetailsProvider.notifier).updateLocation(weather.lat, weather.lon);
-          state = AsyncValue.data(weather);
-        } else {
+        final locale = _ref.read(localeProvider);
+        // Addis Ababa Coordinates
+        const double defaultLat = 9.0333;
+        const double defaultLon = 38.7000;
+        
+        // Try to update location details for Addis Ababa
+        await _ref.read(locationDetailsProvider.notifier).updateLocation(defaultLat, defaultLon);
+        
+        final weather = await _getWeather.byLocation(defaultLat, defaultLon, lang: locale.languageCode);
+        state = AsyncValue.data(weather);
+      } catch (fallbackError, fallbackStack) {
+        // Final fallback to cached weather or error
+        try {
+          final weather = await _ref.read(weatherRepositoryProvider).getWeatherByCity(''); 
+          if (weather != null) {
+            _ref.read(locationDetailsProvider.notifier).updateLocation(weather.lat, weather.lon);
+            state = AsyncValue.data(weather);
+          } else {
+            state = AsyncValue.error(e, st);
+          }
+        } catch (_) {
           state = AsyncValue.error(e, st);
         }
-      } catch (_) {
-        state = AsyncValue.error(e, st);
       }
     }
   }
