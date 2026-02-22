@@ -5,6 +5,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../domain/entities/weather.dart';
 import '../../domain/entities/forecast.dart';
@@ -37,9 +38,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      _checkPermissionsAndGetWeather();
       _loadLastUpdateTime();
     });
+  }
+
+  Future<void> _checkPermissionsAndGetWeather() async {
+    final status = await Permission.location.status;
+    if (status.isDenied) {
+      final result = await Permission.location.request();
+      if (result.isGranted) {
+        ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      }
+    } else if (status.isGranted) {
+      ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+    }
   }
 
   void _loadLastUpdateTime() {
