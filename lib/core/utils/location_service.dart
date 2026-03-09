@@ -176,44 +176,41 @@ class LocationService {
         );
       }
     } catch (e) {
-      // If geocoding fails, try Nominatim reverse geocoding
+      // If geocoding fails, try Open-Meteo reverse geocoding
       try {
         final response = await Dio().get(
-          'https://nominatim.openstreetmap.org/reverse',
+          'https://geocoding-api.open-meteo.com/v1/reverse',
           queryParameters: {
-            'lat': position.latitude,
-            'lon': position.longitude,
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+            'count': 1,
+            'language': 'en',
             'format': 'json',
-            'accept-language': 'en',
           },
-          options: Options(
-            headers: {'User-Agent': 'WeatherApp/1.0'},
-          ),
         );
-
-        if (response.data != null) {
-          final address = response.data['address'] as Map<String, dynamic>?;
-          if (address != null) {
-            return LocationDetails(
-              street: address['road'] ?? '',
-              city: address['city'] ?? address['town'] ?? address['village'] ?? address['municipality'] ?? address['county'] ?? '',
-              region: address['state'] ?? '',
-              country: address['country'] ?? '',
-              postalCode: address['postcode'] ?? '',
-            );
-          }
+        
+        if (response.data['results'] != null && 
+            (response.data['results'] as List).isNotEmpty) {
+          final result = response.data['results'][0];
+          return LocationDetails(
+            street: '',
+            city: result['name'] ?? '',
+            region: result['admin1'] ?? '',
+            country: result['country'] ?? '',
+            postalCode: '',
+          );
         }
       } catch (e2) {
-        // Fallback to default
+        // Fallback to coordinates
       }
     }
     
-    // Default fallback - Addis Ababa
-    return const LocationDetails(
+    // Generic fallback using coordinates
+    return LocationDetails(
       street: '',
-      city: 'Addis Ababa',
-      region: 'Addis Ababa',
-      country: 'Ethiopia',
+      city: 'Lat: ${position.latitude.toStringAsFixed(2)}, Lon: ${position.longitude.toStringAsFixed(2)}',
+      region: '',
+      country: '',
       postalCode: '',
     );
   }
