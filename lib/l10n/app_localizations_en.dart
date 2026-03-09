@@ -115,4 +115,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get satellite => 'Satellite';
+
+  @override
+  String get lastUpdated => 'Last updated';
+
+  @override
+  String get gettingLocation => 'Getting your location...';
+
+  @override
+  String get locationEnabled => 'Location enabled - Auto refresh on';
+
+  @override
+  String get locationDisabled => 'Location disabled';
+
+  @override
+  String get refreshingWeather => 'Refreshing weather data...';
+
+  @override
+  String get locationPermissionDenied => 'Location permission denied';
+
+  @override
+  String get fallbackToDefault => 'Using default location';
+
+  @override
+  String get autoRefreshEnabled => 'Auto refresh enabled';
+
+  @override
+  String get updatingLocation => 'Updating location...';
 }

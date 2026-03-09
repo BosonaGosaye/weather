@@ -434,7 +434,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  "Last updated: $_lastUpdated",
+                                  "${AppLocalizations.of(context)!.lastUpdated}: $_lastUpdated",
                                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                                 ),
                               ).animate().fadeIn(),

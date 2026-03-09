@@ -115,4 +115,31 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get satellite => 'Satelleetii';
+
+  @override
+  String get lastUpdated => 'Yeroo dhumaa kan hiikame';
+
+  @override
+  String get gettingLocation => 'Bakka kee argachuu jirra...';
+
+  @override
+  String get locationEnabled => 'Bakka kennuu-fame - Ijaarriisa qabuu';
+
+  @override
+  String get locationDisabled => 'Bakka kennuu hinfamne';
+
+  @override
+  String get refreshingWeather => 'Haala qilleensaa ivoolchuu jirra...';
+
+  @override
+  String get locationPermissionDenied => 'Ragaan bakka kennuu拒绝';
+
+  @override
+  String get fallbackToDefault => 'Bakka deemee fayyadamu';
+
+  @override
+  String get autoRefreshEnabled => 'Ijaarriisa qabuu argame';
+
+  @override
+  String get updatingLocation => 'Bakka aggiqqoo jirra...';
 }

@@ -34,5 +34,14 @@
     "moderateRain": "መካከለው ዝናብ",
     "heavyRain": "ከባድ ዝናብ",
     "map": "ካርታ",
-    "satellite": "ሳተላይት"
+    "satellite": "ሳተላይት",
+    "lastUpdated": "መጨረሻ ጊዜ የተሻሻለ",
+    "gettingLocation": "መገኛዎን በማግኘት ላይ...",
+    "locationEnabled": "መገኛ ተጀምሮ - ራስ-ሰር ማደስ በርቷል",
+    "locationDisabled": "መገኛ ተሰናክሏል",
+    "refreshingWeather": "የአየር ሁኔታን በማደስ ላይ...",
+    "locationPermissionDenied": "የመገኛ ፈቃድ ተካፋይ ባለመሆኑ ተተርፏል",
+    "fallbackToDefault": "የነባር መገኛ ጥቅም ላይ ውሏል",
+    "autoRefreshEnabled": "ራስ-ሰር ማደስ ተጀምሯል",
+    "updatingLocation": "መገኛን በማሻሻል ላይ..."
 }

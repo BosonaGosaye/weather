@@ -101,8 +101,8 @@ class AboutDeveloperScreen extends StatelessWidget {
                             ],
                           ),
                           child: ClipOval(
-                            child: Image.network(
-                              '../../bosona.jpg', // Replace with actual profile image if available
+                            child: Image.asset(
+                              'lib/bosona.jpg',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(

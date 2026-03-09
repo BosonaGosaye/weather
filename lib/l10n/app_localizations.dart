@@ -315,6 +315,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Satellite'**
   String get satellite;
+
+  /// No description provided for @lastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get lastUpdated;
+
+  /// No description provided for @gettingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your location...'**
+  String get gettingLocation;
+
+  /// No description provided for @locationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location enabled - Auto refresh on'**
+  String get locationEnabled;
+
+  /// No description provided for @locationDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location disabled'**
+  String get locationDisabled;
+
+  /// No description provided for @refreshingWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing weather data...'**
+  String get refreshingWeather;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @fallbackToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Using default location'**
+  String get fallbackToDefault;
+
+  /// No description provided for @autoRefreshEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto refresh enabled'**
+  String get autoRefreshEnabled;
+
+  /// No description provided for @updatingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating location...'**
+  String get updatingLocation;
 }
 
 class _AppLocalizationsDelegate

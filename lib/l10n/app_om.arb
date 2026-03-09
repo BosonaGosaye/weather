@@ -34,5 +34,13 @@
     "moderateRain": "Bishaan Di Guutuu",
     "heavyRain": "Bishaan Di Uuma",
     "map": "Mapaa",
-    "satellite": "Satelleetii"
+    "satellite": "Satelleetii",
+    "lastUpdated": "Yeroo dhumaa kan hiikame",
+    "gettingLocation": "Bakka kee argachuu jirra...",
+    "locationEnabled": "Bakka kennuu-fame - Ijaarriisa qabuu",
+    "locationDisabled": "Bakka kennuu hinfamne",
+    "refreshingWeather": "Haala qilleensaa ivoolchuu jirra...",
+    "locationPermissionDenied": "Ragaan bakka kennuu拒绝","fallbackToDefault": "Bakka deemee fayyadamu",
+    "autoRefreshEnabled": "Ijaarriisa qabuu argame",
+    "updatingLocation": "Bakka aggiqqoo jirra..."
 }

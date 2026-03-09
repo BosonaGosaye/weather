@@ -34,5 +34,14 @@
     "moderateRain": "Moderate Rain",
     "heavyRain": "Heavy Rain",
     "map": "Map",
-    "satellite": "Satellite"
+    "satellite": "Satellite",
+    "lastUpdated": "Last updated",
+    "gettingLocation": "Getting your location...",
+    "locationEnabled": "Location enabled - Auto refresh on",
+    "locationDisabled": "Location disabled",
+    "refreshingWeather": "Refreshing weather data...",
+    "locationPermissionDenied": "Location permission denied",
+    "fallbackToDefault": "Using default location",
+    "autoRefreshEnabled": "Auto refresh enabled",
+    "updatingLocation": "Updating location..."
 }

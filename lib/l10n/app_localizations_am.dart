@@ -115,4 +115,31 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get satellite => 'ሳተላይት';
+
+  @override
+  String get lastUpdated => 'መጨረሻ ጊዜ የተሻሻለ';
+
+  @override
+  String get gettingLocation => 'መገኛዎን በማግኘት ላይ...';
+
+  @override
+  String get locationEnabled => 'መገኛ ተጀምሮ - ራስ-ሰር ማደስ በርቷል';
+
+  @override
+  String get locationDisabled => 'መገኛ ተሰናክሏል';
+
+  @override
+  String get refreshingWeather => 'የአየር ሁኔታን በማደስ ላይ...';
+
+  @override
+  String get locationPermissionDenied => 'የመገኛ ፈቃድ ተካፋይ ባለመሆኑ ተተርፏል';
+
+  @override
+  String get fallbackToDefault => 'የነባር መገኛ ጥቅም ላይ ውሏል';
+
+  @override
+  String get autoRefreshEnabled => 'ራስ-ሰር ማደስ ተጀምሯል';
+
+  @override
+  String get updatingLocation => 'መገኛን በማሻሻል ላይ...';
 }
