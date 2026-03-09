@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../domain/entities/forecast.dart';
 import '../../core/utils/weather_translator.dart';
@@ -32,19 +33,110 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
   String? _lastUpdated;
   Timer? _refreshTimer;
+  StreamSubscription? _locationSubscription;
+  bool _isLocationEnabled = false;
+  double? _lastLat;
+  double? _lastLon;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLastUpdateTime();
       // Always refresh weather on app start
       _refreshWeatherOnStart();
       _startAutoRefresh();
+      _initLocationTracking();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _refreshTimer?.cancel();
+    _locationSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When app resumes from background, refresh weather data
+    if (state == AppLifecycleState.resumed) {
+      _refreshWeatherOnResume();
+    }
+  }
+
+  Future<void> _initLocationTracking() async {
+    // Check if location permission is granted
+    final status = await Permission.location.status;
+    _isLocationEnabled = status.isGranted;
+    
+    if (_isLocationEnabled) {
+      _startLocationTracking();
+    }
+  }
+
+  void _startLocationTracking() {
+    // Cancel any existing subscription
+    _locationSubscription?.cancel();
+    
+    // Listen for location changes
+    _locationSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.low,
+        distanceFilter: 1000, // Only update if user moves 1km
+      ),
+    ).listen(
+      (Position position) {
+        // Check if location has significantly changed
+        if (_lastLat != null && _lastLon != null) {
+          final distance = Geolocator.distanceBetween(
+            _lastLat!,
+            _lastLon!,
+            position.latitude,
+            position.longitude,
+          );
+          // Only refresh if moved more than 1km
+          if (distance < 1000) return;
+        }
+        
+        _lastLat = position.latitude;
+        _lastLon = position.longitude;
+        
+        // Auto-refresh weather when location changes significantly
+        if (mounted) {
+          ref.read(weatherStateProvider.notifier).getWeatherByCoordinates(
+            position.latitude,
+            position.longitude,
+          );
+        }
+      },
+      onError: (error) {
+        // Handle error silently
+      },
+    );
+  }
+
+  Future<void> _refreshWeatherOnResume() async {
+    // Refresh weather when app returns to foreground
+    final status = await Permission.location.status;
+    if (status.isGranted) {
+      await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      _loadLastUpdateTime();
+    } else if (status.isDenied) {
+      final result = await Permission.location.request();
+      if (result.isGranted) {
+        _isLocationEnabled = true;
+        _startLocationTracking();
+        await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+        _loadLastUpdateTime();
+      }
+    }
   }
 
   Future<void> _refreshWeatherOnStart() async {
@@ -52,11 +144,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final status = await Permission.location.status;
     if (status.isGranted) {
       // If location is granted, get weather for current location
+      _isLocationEnabled = true;
+      _startLocationTracking();
       await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
     } else if (status.isDenied) {
       // Try to request location permission
       final result = await Permission.location.request();
       if (result.isGranted) {
+        _isLocationEnabled = true;
+        _startLocationTracking();
         await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
       } else {
         // If denied, fallback to Addis Ababa
@@ -68,17 +164,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _refreshTimer?.cancel();
-    super.dispose();
-  }
-
   void _startAutoRefresh() {
     // Auto-refresh enabled - refresh weather every 15 minutes
     _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(const Duration(minutes: 15), (_) {
-      ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+    _refreshTimer = Timer.periodic(const Duration(minutes: 15), (_) async {
+      // Check location permission before auto-refresh
+      final status = await Permission.location.status;
+      if (status.isGranted) {
+        await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      } else {
+        // Fallback to last known coordinates if location not available
+        final box = Hive.box(AppConstants.weatherBox);
+        final lat = box.get('last_lat');
+        final lon = box.get('last_lon');
+        if (lat != null && lon != null) {
+          await ref.read(weatherStateProvider.notifier).getWeatherByCoordinates(lat, lon);
+        }
+      }
     });
   }
 
