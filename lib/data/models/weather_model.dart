@@ -15,6 +15,7 @@ class WeatherModel extends Weather {
     required super.sunset,
     required super.lat,
     required super.lon,
+    super.precipitation,
   });
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +33,7 @@ class WeatherModel extends Weather {
       sunset: DateTime.fromMillisecondsSinceEpoch(json['sys']['sunset'] * 1000),
       lat: (json['coord']['lat'] as num).toDouble(),
       lon: (json['coord']['lon'] as num).toDouble(),
+      precipitation: (json['precipitation'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -56,6 +58,7 @@ class WeatherModel extends Weather {
         'sunrise': sunrise.millisecondsSinceEpoch ~/ 1000,
         'sunset': sunset.millisecondsSinceEpoch ~/ 1000,
       },
+      'precipitation': precipitation,
     };
   }
 }

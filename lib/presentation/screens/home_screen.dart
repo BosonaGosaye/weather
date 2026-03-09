@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../domain/entities/weather.dart';
 import '../../domain/entities/forecast.dart';
 import '../../core/utils/weather_translator.dart';
 import '../../core/utils/weather_tips.dart';
@@ -24,6 +23,7 @@ import 'favorites_screen.dart';
 import 'about_developer_screen.dart';
 import '../widgets/weather_chart_widget.dart';
 import '../widgets/weather_particles.dart';
+import '../widgets/precipitation_map_widget.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -40,10 +40,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPermissionsAndGetWeather();
       _loadLastUpdateTime();
+      // Always refresh weather on app start
+      _refreshWeatherOnStart();
       _startAutoRefresh();
     });
+  }
+
+  Future<void> _refreshWeatherOnStart() async {
+    // Always try to get fresh weather data on app start
+    final status = await Permission.location.status;
+    if (status.isGranted) {
+      // If location is granted, get weather for current location
+      await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+    } else if (status.isDenied) {
+      // Try to request location permission
+      final result = await Permission.location.request();
+      if (result.isGranted) {
+        await ref.read(weatherStateProvider.notifier).getWeatherByLocation();
+      } else {
+        // If denied, fallback to Addis Ababa
+        await ref.read(weatherStateProvider.notifier).getWeatherByCoordinates(9.03, 38.74);
+      }
+    } else {
+      // If permanently denied or unknown, fallback to Addis Ababa
+      await ref.read(weatherStateProvider.notifier).getWeatherByCoordinates(9.03, 38.74);
+    }
   }
 
   @override
@@ -53,11 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _startAutoRefresh() {
+    // Auto-refresh enabled - refresh weather every 15 minutes
     _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      if (mounted) {
-        ref.read(weatherStateProvider.notifier).getWeatherByLocation();
-      }
+    _refreshTimer = Timer.periodic(const Duration(minutes: 15), (_) {
+      ref.read(weatherStateProvider.notifier).getWeatherByLocation();
     });
   }
 
@@ -324,6 +345,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
+                                    // Always show weather city name - it has the correct searched/tapped city name
                                     weather.cityName,
                                     style: const TextStyle(
                                       color: Colors.white,
@@ -351,9 +373,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
                             
                             if (locationDetails.region.isNotEmpty)
-                              Text(
-                                locationDetails.region,
-                                style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    locationDetails.region,
+                                    style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Show coordinates to verify location
+                                  Text(
+                                    '(${weather.lat.toStringAsFixed(2)}°, ${weather.lon.toStringAsFixed(2)}°)',
+                                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                                  ),
+                                ],
                               ).animate().fadeIn(delay: 200.ms),
                             
                             const SizedBox(height: 40),
@@ -484,7 +517,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     _buildStatCard(context, AppLocalizations.of(context)!.feelsLike, '${weather.feelsLike.round()}°', Icons.thermostat_rounded, isDark ? Colors.orange : Colors.orangeAccent),
                                     _buildStatCard(context, AppLocalizations.of(context)!.humidity, '${weather.humidity}%', Icons.water_drop_rounded, isDark ? Colors.blue : Colors.blueAccent),
                                     _buildStatCard(context, AppLocalizations.of(context)!.wind, '${weather.windSpeed} ${AppLocalizations.of(context)!.windUnit}', Icons.air_rounded, isDark ? Colors.teal : Colors.tealAccent),
-                                    _buildStatCard(context, AppLocalizations.of(context)!.pressure, '${weather.pressure} hPa', Icons.speed_rounded, isDark ? Colors.purple : Colors.purpleAccent),
+                                    _buildStatCard(context, AppLocalizations.of(context)!.precipitation, '${weather.precipitation.toStringAsFixed(1)} mm', Icons.umbrella_rounded, isDark ? Colors.purple : Colors.purpleAccent),
                                   ],
                                 ),
                               ),
@@ -504,6 +537,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             _buildSectionTitle(context, AppLocalizations.of(context)!.pastSevenDays),
                             const SizedBox(height: 16),
                             _buildForecastList(ref.watch(history7DayProvider), locale),
+                            
+                            const SizedBox(height: 32),
+                            // Precipitation Map Section
+                            _buildSectionTitle(context, AppLocalizations.of(context)!.precipitationMap),
+                            const SizedBox(height: 16),
+                            Container(
+                              height: 400,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: PrecipitationMapWidget(
+                                  latitude: weather.lat,
+                                  longitude: weather.lon,
+                                  cityName: weather.cityName,
+                                  temperature: weather.temperature,
+                                  weatherCondition: weather.description,
+                                  precipitation: weather.precipitation,
+                                  onLocationSelected: (lat, lon, cityName) {
+                                    ref.read(weatherStateProvider.notifier).getWeatherByCoordinates(lat, lon, cityName: cityName);
+                                  },
+                                ),
+                              ),
+                            ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1, end: 0),
                             
                             const SizedBox(height: 50),
                           ],
@@ -646,7 +711,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHorizontalList(List<Forecast> list, Locale locale, bool isHourly) {
     return SizedBox(
-      height: 160,
+      height: isHourly ? 180 : 160,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: list.length,
@@ -705,6 +770,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (isHourly && item.precipitationProbability != null && item.precipitationProbability! > 0) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.water_drop, color: Colors.lightBlueAccent, size: 10),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${item.precipitationProbability}%',
+                              style: const TextStyle(
+                                color: Colors.lightBlueAccent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (!isHourly && item.precipitationProbability != null && item.precipitationProbability! > 0) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.water_drop, color: Colors.lightBlueAccent, size: 10),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${item.precipitationProbability}%',
+                            style: const TextStyle(
+                              color: Colors.lightBlueAccent,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (item.precipitationAmount != null && item.precipitationAmount! > 0) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              '${item.precipitationAmount!.toStringAsFixed(1)}mm',
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

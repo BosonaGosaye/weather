@@ -64,31 +64,40 @@ class WeatherRepositoryImpl implements WeatherRepository {
   }
 
   @override
-  Future<Weather> getWeatherByLocation(double lat, double lon, {String? lang}) async {
+  Future<Weather> getWeatherByLocation(double lat, double lon, {String? lang, String? cityName}) async {
     try {
-      final weather = await apiService.fetchWeatherByLocation(lat, lon, lang: lang);
-      final ethiopianCityName = _findNearestEthiopianCityName(lat, lon);
+      final weather = await apiService.fetchWeatherByLocation(lat, lon, lang: lang, cityName: cityName);
       
-      final updatedWeather = ethiopianCityName.isNotEmpty
-          ? WeatherModel(
-              cityName: ethiopianCityName,
-              temperature: weather.temperature,
-              description: weather.description,
-              iconCode: weather.iconCode,
-              humidity: weather.humidity,
-              windSpeed: weather.windSpeed,
-              pressure: weather.pressure,
-              feelsLike: weather.feelsLike,
-              conditionId: weather.conditionId,
-              sunrise: weather.sunrise,
-              sunset: weather.sunset,
-              lat: weather.lat,
-              lon: weather.lon,
-            )
-          : weather;
+      // Only apply Ethiopian city name if coordinates are within Ethiopia bounds
+      // Ethiopia bounds: Lat 3.5° - 15°, Lon 33° - 48°
+      final isInEthiopia = lat >= 3.5 && lat <= 15.0 && lon >= 33.0 && lon <= 48.0;
       
-      await _cacheWeather(updatedWeather as WeatherModel);
-      return updatedWeather;
+      if (isInEthiopia) {
+        final ethiopianCityName = _findNearestEthiopianCityName(lat, lon);
+        
+        if (ethiopianCityName.isNotEmpty) {
+          final result = WeatherModel(
+            cityName: ethiopianCityName,
+            temperature: weather.temperature,
+            description: weather.description,
+            iconCode: weather.iconCode,
+            humidity: weather.humidity,
+            windSpeed: weather.windSpeed,
+            pressure: weather.pressure,
+            feelsLike: weather.feelsLike,
+            conditionId: weather.conditionId,
+            sunrise: weather.sunrise,
+            sunset: weather.sunset,
+            lat: weather.lat,
+            lon: weather.lon,
+          );
+          await _cacheWeather(result);
+          return result;
+        }
+      }
+      
+      await _cacheWeather(weather);
+      return weather;
     } catch (e) {
       return _getCachedWeather() ?? (throw e);
     }

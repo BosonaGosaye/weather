@@ -85,4 +85,34 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get pastSevenDays => 'Seenaa Guyyaa 7 Darbe';
+
+  @override
+  String get precipitation => 'Bishaan Di';
+
+  @override
+  String get precipitationProbability => 'Hangam Bishaan Di\'u';
+
+  @override
+  String get precipitationMap => 'Kuuf Bishaan Di';
+
+  @override
+  String get rain => 'Bishaan Di';
+
+  @override
+  String get noRain => 'Bishaan Di hin jirre';
+
+  @override
+  String get lightRain => 'Bishaan Di Hirmaachu';
+
+  @override
+  String get moderateRain => 'Bishaan Di Guutuu';
+
+  @override
+  String get heavyRain => 'Bishaan Di Uuma';
+
+  @override
+  String get map => 'Mapaa';
+
+  @override
+  String get satellite => 'Satelleetii';
 }

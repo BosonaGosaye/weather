@@ -85,4 +85,34 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get pastSevenDays => 'ያለፉት 7 ቀናት ታሪክ';
+
+  @override
+  String get precipitation => 'ዝናብ';
+
+  @override
+  String get precipitationProbability => 'የዝናብ ዕድል';
+
+  @override
+  String get precipitationMap => 'የዝናብ ካርታ';
+
+  @override
+  String get rain => 'ዝናብ';
+
+  @override
+  String get noRain => 'ዝናብ የለም';
+
+  @override
+  String get lightRain => 'ቀላል ዝናብ';
+
+  @override
+  String get moderateRain => 'መካከለው ዝናብ';
+
+  @override
+  String get heavyRain => 'ከባድ ዝናብ';
+
+  @override
+  String get map => 'ካርታ';
+
+  @override
+  String get satellite => 'ሳተላይት';
 }

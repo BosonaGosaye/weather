@@ -255,6 +255,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Past 7 Days History'**
   String get pastSevenDays;
+
+  /// No description provided for @precipitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation'**
+  String get precipitation;
+
+  /// No description provided for @precipitationProbability.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation Probability'**
+  String get precipitationProbability;
+
+  /// No description provided for @precipitationMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation Map'**
+  String get precipitationMap;
+
+  /// No description provided for @rain.
+  ///
+  /// In en, this message translates to:
+  /// **'Rain'**
+  String get rain;
+
+  /// No description provided for @noRain.
+  ///
+  /// In en, this message translates to:
+  /// **'No Rain'**
+  String get noRain;
+
+  /// No description provided for @lightRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Rain'**
+  String get lightRain;
+
+  /// No description provided for @moderateRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Rain'**
+  String get moderateRain;
+
+  /// No description provided for @heavyRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Rain'**
+  String get heavyRain;
+
+  /// No description provided for @map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map;
+
+  /// No description provided for @satellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get satellite;
 }
 
 class _AppLocalizationsDelegate

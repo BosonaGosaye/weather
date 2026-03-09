@@ -88,6 +88,17 @@ class LocationDetailsNotifier extends StateNotifier<LocationDetails> {
         state = details;
     } catch (_) {}
   }
+
+  Future<void> updateLocationWithCity(double lat, double lon, String cityName) async {
+    // Directly set the city name from the searched city
+    state = LocationDetails(
+      street: '',
+      city: cityName,
+      region: '',
+      country: '',
+      postalCode: '',
+    );
+  }
 }
 
 class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
@@ -137,14 +148,17 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
     }
   }
 
-  Future<void> getWeatherByCoordinates(double lat, double lon) async {
+  Future<void> getWeatherByCoordinates(double lat, double lon, {String? cityName}) async {
     state = const AsyncValue.loading();
     try {
       final locale = _ref.read(localeProvider);
-      // Update location details
-      _ref.read(locationDetailsProvider.notifier).updateLocation(lat, lon);
-      
-      final weather = await _getWeather.byLocation(lat, lon, lang: locale.languageCode);
+      if (cityName != null && cityName.isNotEmpty) {
+        _ref.read(locationDetailsProvider.notifier).updateLocationWithCity(lat, lon, cityName);
+      } else {
+        _ref.read(locationDetailsProvider.notifier).updateLocation(lat, lon);
+      }
+
+      final weather = await _getWeather.byLocation(lat, lon, lang: locale.languageCode, cityName: cityName);
       state = AsyncValue.data(weather);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -156,6 +170,15 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
     try {
       final locale = _ref.read(localeProvider);
       final weather = await _getWeather.byCity(city, lang: locale.languageCode);
+      
+      // Update location details with the searched city location
+      // Use the city name from weather response
+      _ref.read(locationDetailsProvider.notifier).updateLocationWithCity(
+        weather.lat, 
+        weather.lon,
+        weather.cityName,
+      );
+      
       state = AsyncValue.data(weather);
     } catch (e, st) {
       // Try to load cached weather on error

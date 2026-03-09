@@ -24,5 +24,15 @@
     "noFavorites": "No favorite cities yet.",
     "delete": "Delete",
     "sevenDayForecast": "7-Day Forecast",
-    "pastSevenDays": "Past 7 Days History"
+    "pastSevenDays": "Past 7 Days History",
+    "precipitation": "Precipitation",
+    "precipitationProbability": "Precipitation Probability",
+    "precipitationMap": "Precipitation Map",
+    "rain": "Rain",
+    "noRain": "No Rain",
+    "lightRain": "Light Rain",
+    "moderateRain": "Moderate Rain",
+    "heavyRain": "Heavy Rain",
+    "map": "Map",
+    "satellite": "Satellite"
 }

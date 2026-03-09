@@ -85,4 +85,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pastSevenDays => 'Past 7 Days History';
+
+  @override
+  String get precipitation => 'Precipitation';
+
+  @override
+  String get precipitationProbability => 'Precipitation Probability';
+
+  @override
+  String get precipitationMap => 'Precipitation Map';
+
+  @override
+  String get rain => 'Rain';
+
+  @override
+  String get noRain => 'No Rain';
+
+  @override
+  String get lightRain => 'Light Rain';
+
+  @override
+  String get moderateRain => 'Moderate Rain';
+
+  @override
+  String get heavyRain => 'Heavy Rain';
+
+  @override
+  String get map => 'Map';
+
+  @override
+  String get satellite => 'Satellite';
 }

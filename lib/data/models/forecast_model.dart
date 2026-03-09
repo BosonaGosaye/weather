@@ -7,6 +7,8 @@ class ForecastModel extends Forecast {
     required super.description,
     required super.iconCode,
     required super.conditionId,
+    super.precipitationProbability,
+    super.precipitationAmount,
   });
 
   factory ForecastModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,8 @@ class ForecastModel extends Forecast {
       description: json['weather'][0]['description'],
       iconCode: json['weather'][0]['icon'],
       conditionId: json['weather'][0]['id'],
+      precipitationProbability: (json['precipitation_probability'] as num?)?.toInt(),
+      precipitationAmount: (json['precipitation'] as num?)?.toDouble(),
     );
   }
 
@@ -28,6 +32,8 @@ class ForecastModel extends Forecast {
       'weather': [
         {'description': description, 'icon': iconCode, 'id': conditionId}
       ],
+      'precipitation_probability': precipitationProbability,
+      'precipitation': precipitationAmount,
     };
   }
 }

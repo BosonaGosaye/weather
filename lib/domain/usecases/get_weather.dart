@@ -10,7 +10,7 @@ class GetWeather {
     return repository.getWeatherByCity(city, lang: lang);
   }
 
-  Future<Weather> byLocation(double lat, double lon, {String? lang}) {
-    return repository.getWeatherByLocation(lat, lon, lang: lang);
+  Future<Weather> byLocation(double lat, double lon, {String? lang, String? cityName}) {
+    return repository.getWeatherByLocation(lat, lon, lang: lang, cityName: cityName);
   }
 }

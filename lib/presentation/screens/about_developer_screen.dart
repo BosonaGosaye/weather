@@ -102,7 +102,7 @@ class AboutDeveloperScreen extends StatelessWidget {
                           ),
                           child: ClipOval(
                             child: Image.network(
-                              'https://github.com/BosonaGosaye.png', // Replace with actual profile image if available
+                              '../../bosona.jpg', // Replace with actual profile image if available
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(

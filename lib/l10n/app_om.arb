@@ -24,5 +24,15 @@
     "noFavorites": "Magaalota jaalataman hin qabu.",
     "delete": "Haqi",
     "sevenDayForecast": "Tilmaama Guyyaa 7",
-    "pastSevenDays": "Seenaa Guyyaa 7 Darbe"
+    "pastSevenDays": "Seenaa Guyyaa 7 Darbe",
+    "precipitation": "Bishaan Di",
+    "precipitationProbability": "Hangam Bishaan Di'u",
+    "precipitationMap": "Kuuf Bishaan Di",
+    "rain": "Bishaan Di",
+    "noRain": "Bishaan Di hin jirre",
+    "lightRain": "Bishaan Di Hirmaachu",
+    "moderateRain": "Bishaan Di Guutuu",
+    "heavyRain": "Bishaan Di Uuma",
+    "map": "Mapaa",
+    "satellite": "Satelleetii"
 }

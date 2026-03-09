@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:dio/dio.dart';
 import 'dart:math';
 import '../../domain/entities/location_details.dart';
 import '../../domain/entities/city.dart';
@@ -82,9 +83,33 @@ class LocationService {
     throw Exception(error);
   }
 
+  // Major cities that should be prioritized when finding nearest city
+  // These are the most important cities/towns in Ethiopia
+  static const List<String> majorCities = [
+    'Addis Ababa', 'Adama', 'Nazret', 'Dire Dawa', 'Gondar', 'Bahir Dar', 'Hawassa', 
+    'Jimma', 'Jijiga', 'Adigrat', 'Shire', 'Axum', 'Mekelle', 'Harar',
+    'Bishoftu', 'Kombolcha', 'Sebeta', 'Burayu', 'Ziway',
+    'Ambo', 'Asella', 'Nekemte', 'Weldiya', 'Woldia',
+    'Debre Birhan', 'Debre Markos', 'Finote Selam', 'Lalibela',
+    'Arba Minch', 'Dilla', 'Konso', 'Wolaita Sodo', 'Hosaena',
+    'Gambella', 'Asosa', 'Metu', 'Bule Hora', 'Shashamane',
+  ];
+  
   City? findNearestEthiopianCity(double lat, double lon) {
     if (EthiopianCitiesData.cities.isEmpty) return null;
     
+    // First, check if there's a major city within a reasonable distance (80km)
+    // If found, use it - this prevents showing small localities
+    for (final city in EthiopianCitiesData.cities) {
+      if (majorCities.any((m) => m.toLowerCase() == city.cityName.toLowerCase())) {
+        final distance = _calculateDistance(lat, lon, city.latitude, city.longitude);
+        if (distance <= 80) { // Within 80km - use this major city
+          return city;
+        }
+      }
+    }
+    
+    // If no major city within 80km, find the nearest city
     City? nearestCity;
     double minDistance = double.infinity;
     
@@ -93,6 +118,20 @@ class LocationService {
       if (distance < minDistance) {
         minDistance = distance;
         nearestCity = city;
+      }
+    }
+    
+    // If the nearest city is very far (>150km), still try to find a better match
+    if (minDistance > 150) {
+      // Look for any major city even if farther
+      for (final city in EthiopianCitiesData.cities) {
+        if (majorCities.any((m) => m.toLowerCase() == city.cityName.toLowerCase())) {
+          final distance = _calculateDistance(lat, lon, city.latitude, city.longitude);
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestCity = city;
+          }
+        }
       }
     }
     
@@ -119,19 +158,9 @@ class LocationService {
   }
 
   Future<LocationDetails> getPlaceMark(Position position) async {
-    final nearestCity = findNearestEthiopianCity(position.latitude, position.longitude);
-    
-    if (nearestCity != null) {
-      return LocationDetails(
-        street: '',
-        city: nearestCity.cityName,
-        region: nearestCity.region,
-        country: 'Ethiopia',
-        postalCode: '',
-      );
-    }
-    
+    // Try to get location details using reverse geocoding
     try {
+      // First try with geocoding package
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -140,15 +169,52 @@ class LocationService {
         final place = placemarks.first;
         return LocationDetails(
           street: place.street ?? '',
-          city: place.locality ?? place.subLocality ?? '',
+          city: place.locality ?? place.subLocality ?? place.name ?? '',
           region: place.administrativeArea ?? '',
           country: place.country ?? '',
           postalCode: place.postalCode ?? '',
         );
       }
-      return const LocationDetails();
     } catch (e) {
-      return const LocationDetails();
+      // If geocoding fails, try Nominatim reverse geocoding
+      try {
+        final response = await Dio().get(
+          'https://nominatim.openstreetmap.org/reverse',
+          queryParameters: {
+            'lat': position.latitude,
+            'lon': position.longitude,
+            'format': 'json',
+            'accept-language': 'en',
+          },
+          options: Options(
+            headers: {'User-Agent': 'WeatherApp/1.0'},
+          ),
+        );
+
+        if (response.data != null) {
+          final address = response.data['address'] as Map<String, dynamic>?;
+          if (address != null) {
+            return LocationDetails(
+              street: address['road'] ?? '',
+              city: address['city'] ?? address['town'] ?? address['village'] ?? address['municipality'] ?? address['county'] ?? '',
+              region: address['state'] ?? '',
+              country: address['country'] ?? '',
+              postalCode: address['postcode'] ?? '',
+            );
+          }
+        }
+      } catch (e2) {
+        // Fallback to default
+      }
     }
+    
+    // Default fallback - Addis Ababa
+    return const LocationDetails(
+      street: '',
+      city: 'Addis Ababa',
+      region: 'Addis Ababa',
+      country: 'Ethiopia',
+      postalCode: '',
+    );
   }
 }

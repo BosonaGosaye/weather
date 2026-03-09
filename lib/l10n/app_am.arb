@@ -24,5 +24,15 @@
     "noFavorites": "ምንም ተወዳጅ ከተሞች የሉም።",
     "delete": "ሰርዝ",
     "sevenDayForecast": "የ7 ቀን ትንበያ",
-    "pastSevenDays": "ያለፉት 7 ቀናት ታሪክ"
+    "pastSevenDays": "ያለፉት 7 ቀናት ታሪክ",
+    "precipitation": "ዝናብ",
+    "precipitationProbability": "የዝናብ ዕድል",
+    "precipitationMap": "የዝናብ ካርታ",
+    "rain": "ዝናብ",
+    "noRain": "ዝናብ የለም",
+    "lightRain": "ቀላል ዝናብ",
+    "moderateRain": "መካከለው ዝናብ",
+    "heavyRain": "ከባድ ዝናብ",
+    "map": "ካርታ",
+    "satellite": "ሳተላይት"
 }

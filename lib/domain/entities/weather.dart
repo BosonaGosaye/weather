@@ -14,6 +14,7 @@ class Weather extends Equatable {
   final DateTime sunset;
   final double lat;
   final double lon;
+  final double precipitation;
 
   const Weather({
     required this.cityName,
@@ -29,6 +30,7 @@ class Weather extends Equatable {
     required this.sunset,
     required this.lat,
     required this.lon,
+    this.precipitation = 0.0,
   });
 
   @override
@@ -46,5 +48,6 @@ class Weather extends Equatable {
         sunset,
         lat,
         lon,
+        precipitation,
       ];
 }
